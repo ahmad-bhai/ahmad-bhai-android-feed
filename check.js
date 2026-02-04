@@ -38,25 +38,14 @@
     fetch(dbURL).then(r => r.json()).then(data => {
         let isUnlocked = false;
         if (data) { Object.values(data).forEach(user => { if (user.id === myUID) isUnlocked = true; }); }
-
-        if (isUnlocked) {
-            overlay.remove();
-            startApp(); 
-        } else {
-            overlay.innerHTML = `
-                <div class="ahmad-white-box">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Telegram_logo.svg/2048px-Telegram_logo.svg.png" width="60">
-                    <div class="ahmad-id-box">${myUID}</div>
-                    <div style="font-size:28px;font-weight:900;color:red;margin:10px 0;">LOCKED</div>
-                    <p style="font-size:13px;">Contact: +923120883884</p>
-                </div>`;
-        }
+        if (isUnlocked) { overlay.remove(); startApp(); } 
+        else { overlay.innerHTML = `<div class="ahmad-white-box"><div class="ahmad-id-box">${myUID}</div><h2 style="color:red">LOCKED</h2></div>`; }
     });
 
     /* --- 3. MAIN APP --- */
     function startApp() {
         const namesList = ["MD Zeeshan", "Faiza", "Bilal", "Alyan", "Ajay", "Fatima", "Aliya", "Sania", "Ali"];
-        const msgsList = ["Win Sure shot", "100% Signal working", "Profit booked", "Thanks bhai", "Win win", "Level cross"];
+        const msgsList = ["Win Sure shot", "100% Signal working", "Profit booked", "Thanks bhai", "Win win", "Join fast"];
 
         function showSettings() {
             var t = new Date().toLocaleTimeString("en-US", { hour: '2-digit', minute:'2-digit', hour12: true });
@@ -64,11 +53,9 @@
             dia.innerHTML = `
                 <div class="modal-header">ANDROID FEEDBACKS</div>
                 <div class="modal-body">
-                    <label style="font-size:11px; font-weight:bold;">CLOCK TIME</label>
                     <input id="timeInp" type="text" value="${t}">
-                    <label style="font-size:11px; font-weight:bold;">THEME (W/B)</label>
                     <input id="themeInp" type="text" value="W" maxlength="1">
-                    <button id="startBtn" class="run-btn">RUN CODE</button>
+                    <button id="startBtn" class="run-btn">GENERATE</button>
                 </div>`;
             document.body.appendChild(dia);
             dia.showModal();
@@ -87,29 +74,20 @@
             const tgPink = "#fe76b8"; 
 
             if (theme == "b") {
-                document.querySelector(".battery").style.background = "#454444";
-                document.querySelector(".status_time").style.background = "#362c2a";
                 document.querySelector(".bg_img").src = "feed2-thumb.png"; 
-                
                 document.documentElement.style.setProperty('--bg_color', '#181818');
                 document.documentElement.style.setProperty('--chat_name', '#cecece');
                 document.documentElement.style.setProperty('--fg_color', tgPink); 
                 document.documentElement.style.setProperty('--personal_bg', tgPink); 
-                
-                // --- TABS BUBBLE COLOR OLD (DARK) ---
                 document.documentElement.style.setProperty('--chats_bg', '#333333'); 
                 document.documentElement.style.setProperty('--personal_text', '#000000'); 
             } else {
                 document.querySelector(".bg_img").src = "feed-thumb.png"; 
-                document.querySelector(".battery").style.background = "#6c90b0";
-                document.querySelector(".status_time").style.background = "#517da2";
                 document.documentElement.style.setProperty('--bg_color', 'white');
                 document.documentElement.style.setProperty('--chat_name', '#000000');
                 document.documentElement.style.setProperty('--fg_color', '#59bf4a');
-                
-                // --- TABS BUBBLE COLOR OLD (WHITE) ---
                 document.documentElement.style.setProperty('--chats_bg', '#d5e8f7');
-                document.documentElement.style.setProperty('--personal_bg', '#ffffff');
+                document.documentElement.style.setProperty('--personal_bg', 'white');
                 document.documentElement.style.setProperty('--personal_text', '#517da2');
             }
 
@@ -122,24 +100,27 @@
             for (let i = 0; i < 9; i++) {
                 document.querySelector(".ul_chat_name").innerHTML += `<li class="chat_name" style="top:${tops[i]}px; left:76px;">${shuffled[i]}</li>`;
                 document.querySelector(".ul_chat_time").innerHTML += `<li class="chat_time" style="top:${tops[i]+1}px;">${fullTime}</li>`;
-
-                let rDP = Math.floor(Math.random() * 30) + 1;
-                document.querySelector(".ul_chat_dp").innerHTML += `<li class="chat_dp" style="top:${dpTops[i]}px; left:7px;"><img src="dp${rDP}.png"></li>`;
+                document.querySelector(".ul_chat_dp").innerHTML += `<li class="chat_dp" style="top:${dpTops[i]}px; left:7px;"><img src="dp${Math.floor(Math.random()*30)+1}.png"></li>`;
                 
                 if(Math.random() > 0.3) {
                     let dotClass = (theme == "b") ? "dark-dot" : "light-dot";
                     document.querySelector(".ul_online_bullet").innerHTML += `<li class="online_bullet ${dotClass}" style="top:${dpTops[i]+42}px; left:50px;"></li>`;
                 }
 
-                // --- MIXED MESSAGE LOGIC (PH/VM/TEXT) ---
+                // --- FULLY RANDOM MESSAGE LOGIC ---
                 let msgHtml = "";
-                if (i < 3) { 
+                let typeRand = Math.random(); // Random number 0 to 1
+
+                if (typeRand < 0.35) { 
+                    // 35% Chance: Photo Icon + Text
                     let rImg = Math.floor(Math.random() * 30) + 1;
-                    let color = (Math.random() > 0.5) ? "#61a4c8" : "#747f89";
+                    let color = (Math.random() > 0.5) ? "#61a4c8" : "#747f89"; 
                     msgHtml = `<img src="${rImg}.png" style="width:18px;height:18px;border-radius:2px;vertical-align:middle;"> <span style="color:${color}; margin-left:5px;">Photo</span>`;
-                } else if (i < 5) {
+                } else if (typeRand < 0.55) {
+                    // 20% Chance: Voice Message
                     msgHtml = `<span style="color:#61a4c8;">Voice message</span>`;
                 } else {
+                    // 45% Chance: Simple Text Message
                     let rMsg = msgsList[Math.floor(Math.random()*msgsList.length)];
                     msgHtml = `<span style="color:#747f89;">${rMsg}</span>`;
                 }
@@ -150,13 +131,11 @@
         }
 
         document.querySelector(".btn").onclick = function() {
-            this.innerText = "CAPTURING...";
             html2canvas(document.querySelector("#box"), { scale: 4 }).then(canvas => {
                 const a = document.createElement("a");
-                a.download = `Telegram_Feedback_${Date.now()}.png`;
-                a.href = canvas.toDataURL("image/png");
+                a.download = `Android_Random_SS.png`;
+                a.href = canvas.toDataURL();
                 a.click();
-                this.innerText = "DOWNLOAD FEEDBACK";
             });
         };
         showSettings();
