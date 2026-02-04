@@ -1,49 +1,86 @@
 (function() {
-    /* --- 1. CONFIG & SYSTEM SETTINGS --- */
-    const projectID = "reactions-maker-site"; 
-    const dbURL = `https://${projectID}-default-rtdb.firebaseio.com/users.json`;
 
-    let myUID = localStorage.getItem('ahmad_script_uid');
+    /* ------------------ 1. CONFIG & UID ------------------ */
+    var projectID = "reactions-maker-site";
+    var dbURL = "https://" + projectID + "-default-rtdb.firebaseio.com/users.json";
+
+    var myUID = localStorage.getItem('ahmad_script_uid');
     if (!myUID) {
-        myUID = ""; 
-        for (let i = 0; i < 20; i++) myUID += Math.floor(Math.random() * 10);
+        myUID = "";
+        for (var i = 0; i < 20; i++) myUID += Math.floor(Math.random() * 10);
         localStorage.setItem('ahmad_script_uid', myUID);
     }
 
-    var style = document.createElement('style');
-    style.innerHTML = `
-        .ahmad-lock-overlay { position:fixed; inset:0; background:#181a20; z-index:99999; display:flex; justify-content:center; align-items:center; font-family:sans-serif; }
-        .ahmad-white-box { background:#fff; padding:30px; border-radius:20px; text-align:center; width:310px; box-shadow:0 10px 40px rgba(0,0,0,0.5); }
-        .ahmad-id-box { color:#000; margin:15px 0; font-family:monospace; font-weight:bold; font-size:15px; background:#f1f5f9; padding:12px; border-radius:8px; border:1px dashed #34ace1; }
-        
-        dialog { border:none; border-radius:15px; padding:0; width:320px; box-shadow:0 20px 50px rgba(0,0,0,0.5); margin:auto; }
-        dialog::backdrop { background: rgba(24,26,32,0.95); backdrop-filter: blur(4px); }
-        .modal-header { background:#34ace1; color:white; padding:15px; text-align:center; font-weight:bold; }
-        .modal-body { padding:20px; display:flex; flex-direction:column; gap:12px; font-family:sans-serif; }
-        .modal-body input { padding:10px; border:1px solid #ddd; border-radius:5px; text-align:center; outline:none; }
-        .run-btn { background:#34ace1; color:white; border:none; padding:12px; border-radius:5px; font-weight:bold; cursor:pointer; }
-        
-        .online_bullet { position:absolute; width:13px; height:13px; border-radius:50%; z-index:10; }
-        .dark-dot { border: 2px solid #000 !important; background: #fe76b8 !important; }
-        .light-dot { border: 2px solid #fff !important; background: #59bf4a !important; }
-    `;
-    document.head.appendChild(style);
-
+    /* ------------------ 2. LOCK SCREEN UI (OLD STYLE) ------------------ */
     var overlay = document.createElement('div');
-    overlay.className = 'ahmad-lock-overlay';
-    overlay.innerHTML = '<div style="color:white; font-size:18px;">INITIALIZING...</div>';
-    document.body.appendChild(overlay);
-
-    /* --- 2. AUTH CHECK --- */
-    fetch(dbURL).then(r => r.json()).then(data => {
-        let isUnlocked = false;
-        if (data) { Object.values(data).forEach(user => { if (user.id === myUID) isUnlocked = true; }); }
-        if (isUnlocked) { overlay.remove(); startApp(); } 
-        else { overlay.innerHTML = `<div class="ahmad-white-box"><div class="ahmad-id-box">${myUID}</div><h2 style="color:red">LOCKED</h2></div>`; }
+    overlay.id = "ahmad-lock-screen";
+    Object.assign(overlay.style, {
+        position: 'fixed',
+        top: '0',
+        left: '0',
+        width: '100vw',
+        height: '100vh',
+        background: '#0e121a',
+        zIndex: '2147483647',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        fontFamily: 'sans-serif'
     });
 
-    /* --- 3. MAIN APP --- */
+    overlay.innerHTML = `
+        <div style="background:white;width:320px;padding:30px;border-radius:20px;text-align:center;
+        box-shadow:0 10px 25px rgba(0,0,0,0.5);box-sizing:border-box;">
+            
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Telegram_logo.svg/2048px-Telegram_logo.svg.png"
+                 style="width:70px;margin-bottom:15px;">
+
+            <div style="color:#222;font-size:22px;font-weight:bold;margin-bottom:5px;">ACCESS LOCKED</div>
+            <div id="status-msg" style="color:#666;font-size:13px;margin-bottom:15px;">Verifying your ID...</div>
+
+            <div style="background:#f1f5f9;color:#334155;padding:12px;border-radius:8px;
+            font-family:monospace;font-size:14px;border:1px dashed #0088cc;
+            margin-bottom:20px;word-break:break-all;">${myUID}</div>
+
+            <div style="text-align:left;font-size:14px;color:#444;line-height:1.6;
+            border-top:1px solid #eee;padding-top:15px;margin-bottom:15px;">
+                <b>Whatsapp:</b> <span style="color:#25d366;">+923120883884</span><br>
+                <b>Telegram:</b> <span style="color:#0088cc;">@AhmadTrader3</span>
+                <div style="margin-top:10px;text-align:center;font-weight:bold;color:#d9534f;">
+                    Contact to unlock
+                </div>
+            </div>
+
+            <button onclick="location.reload()" style="width:100%;background:#0088cc;color:white;
+            border:none;padding:12px;border-radius:10px;font-weight:bold;cursor:pointer;">
+                RETRY
+            </button>
+        </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    /* ------------------ 3. AUTH CHECK ------------------ */
+    fetch(dbURL).then(r => r.json()).then(data => {
+        var isUnlocked = false;
+        if (data) {
+            Object.values(data).forEach(u => {
+                if (u.id === myUID) isUnlocked = true;
+            });
+        }
+
+        if (isUnlocked) {
+            overlay.remove();
+            startApp();   // 🔓 Unlock → App Start
+        } else {
+            document.getElementById("status-msg").innerText = "ID Not Registered!";
+            document.getElementById("status-msg").style.color = "red";
+        }
+    });
+
+    /* ------------------ 4. ORIGINAL APP START ------------------ */
     function startApp() {
+
         const namesList = ["MD Zeeshan", "Faiza", "Bilal", "Alyan", "Ajay", "Fatima", "Aliya", "Sania", "Ali"];
         const msgsList = ["Win Sure shot", "100% Signal working", "Profit booked", "Thanks bhai", "Win win", "Join fast"];
 
@@ -55,14 +92,15 @@
                 <div class="modal-body">
                     <input id="timeInp" type="text" value="${t}">
                     <input id="themeInp" type="text" value="W" maxlength="1">
-                    <button id="startBtn" class="run-btn">GENERATE</button>
+                    <button id="startBtn" class="run-btn">RUN CODE</button>
                 </div>`;
             document.body.appendChild(dia);
             dia.showModal();
 
             dia.querySelector("#startBtn").onclick = () => {
                 dia.close();
-                generate(document.querySelector("#timeInp").value, document.querySelector("#themeInp").value.toLowerCase());
+                generate(document.querySelector("#timeInp").value,
+                         document.querySelector("#themeInp").value.toLowerCase());
             };
         }
 
@@ -71,18 +109,18 @@
             document.querySelector(".status_time").innerHTML = fullTime.replace(/AM|PM|\s/gi, "");
             document.body.contentEditable = true;
 
-            const tgPink = "#fe76b8"; 
+            const tgPink = "#fe76b8";
 
             if (theme == "b") {
-                document.querySelector(".bg_img").src = "feed2-thumb.png"; 
+                document.querySelector(".bg_img").src = "feed2-thumb.png";
                 document.documentElement.style.setProperty('--bg_color', '#181818');
                 document.documentElement.style.setProperty('--chat_name', '#cecece');
-                document.documentElement.style.setProperty('--fg_color', tgPink); 
-                document.documentElement.style.setProperty('--personal_bg', tgPink); 
-                document.documentElement.style.setProperty('--chats_bg', '#333333'); 
-                document.documentElement.style.setProperty('--personal_text', '#000000'); 
+                document.documentElement.style.setProperty('--fg_color', tgPink);
+                document.documentElement.style.setProperty('--personal_bg', tgPink);
+                document.documentElement.style.setProperty('--chats_bg', '#333333');
+                document.documentElement.style.setProperty('--personal_text', '#000000');
             } else {
-                document.querySelector(".bg_img").src = "feed-thumb.png"; 
+                document.querySelector(".bg_img").src = "feed-thumb.png";
                 document.documentElement.style.setProperty('--bg_color', 'white');
                 document.documentElement.style.setProperty('--chat_name', '#000000');
                 document.documentElement.style.setProperty('--fg_color', '#59bf4a');
@@ -101,26 +139,22 @@
                 document.querySelector(".ul_chat_name").innerHTML += `<li class="chat_name" style="top:${tops[i]}px; left:76px;">${shuffled[i]}</li>`;
                 document.querySelector(".ul_chat_time").innerHTML += `<li class="chat_time" style="top:${tops[i]+1}px;">${fullTime}</li>`;
                 document.querySelector(".ul_chat_dp").innerHTML += `<li class="chat_dp" style="top:${dpTops[i]}px; left:7px;"><img src="dp${Math.floor(Math.random()*30)+1}.png"></li>`;
-                
+
                 if(Math.random() > 0.3) {
                     let dotClass = (theme == "b") ? "dark-dot" : "light-dot";
                     document.querySelector(".ul_online_bullet").innerHTML += `<li class="online_bullet ${dotClass}" style="top:${dpTops[i]+42}px; left:50px;"></li>`;
                 }
 
-                // --- FULLY RANDOM MESSAGE LOGIC ---
                 let msgHtml = "";
-                let typeRand = Math.random(); // Random number 0 to 1
+                let typeRand = Math.random();
 
-                if (typeRand < 0.35) { 
-                    // 35% Chance: Photo Icon + Text
+                if (typeRand < 0.35) {
                     let rImg = Math.floor(Math.random() * 30) + 1;
-                    let color = (Math.random() > 0.5) ? "#61a4c8" : "#747f89"; 
+                    let color = (Math.random() > 0.5) ? "#61a4c8" : "#747f89";
                     msgHtml = `<img src="${rImg}.png" style="width:18px;height:18px;border-radius:2px;vertical-align:middle;"> <span style="color:${color}; margin-left:5px;">Photo</span>`;
                 } else if (typeRand < 0.55) {
-                    // 20% Chance: Voice Message
                     msgHtml = `<span style="color:#61a4c8;">Voice message</span>`;
                 } else {
-                    // 45% Chance: Simple Text Message
                     let rMsg = msgsList[Math.floor(Math.random()*msgsList.length)];
                     msgHtml = `<span style="color:#747f89;">${rMsg}</span>`;
                 }
@@ -138,6 +172,8 @@
                 a.click();
             });
         };
+
         showSettings();
     }
+
 })();
