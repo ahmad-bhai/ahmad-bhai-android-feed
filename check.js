@@ -56,7 +56,7 @@
     /* --- 3. MAIN APP --- */
     function startApp() {
         const namesList = ["MD Zeeshan", "Faiza", "Bilal", "Alyan", "Ajay", "Fatima", "Aliya", "Sania", "Ali"];
-        const msgsList = ["Win Sure shot", "100% Signal working", "Profit booked", "Thanks bhai", "Win win"];
+        const msgsList = ["Win Sure shot", "100% Signal working", "Profit booked", "Thanks bhai", "Win win", "Level cross"];
 
         function showSettings() {
             var t = new Date().toLocaleTimeString("en-US", { hour: '2-digit', minute:'2-digit', hour12: true });
@@ -85,29 +85,32 @@
             document.body.contentEditable = true;
 
             const tgPink = "#fe76b8"; 
-            let dotClass = "light-dot";
 
             if (theme == "b") {
-                dotClass = "dark-dot";
-                if(document.querySelector(".tg")) document.querySelector(".tg").remove();
                 document.querySelector(".battery").style.background = "#454444";
                 document.querySelector(".status_time").style.background = "#362c2a";
                 document.querySelector(".bg_img").src = "feed2-thumb.png"; 
                 
-                // --- DARK THEME STYLING ---
                 document.documentElement.style.setProperty('--bg_color', '#181818');
                 document.documentElement.style.setProperty('--chat_name', '#cecece');
-                document.documentElement.style.setProperty('--fg_color', tgPink); // Personal Tab Bubble
-                document.documentElement.style.setProperty('--chats_bg', tgPink); // Chat Unread Bubbles
-                document.documentElement.style.setProperty('--personal_text', '#000000'); // All Tabs Count Black Text
+                document.documentElement.style.setProperty('--fg_color', tgPink); 
+                document.documentElement.style.setProperty('--personal_bg', tgPink); 
+                
+                // --- TABS BUBBLE COLOR OLD (DARK) ---
+                document.documentElement.style.setProperty('--chats_bg', '#333333'); 
+                document.documentElement.style.setProperty('--personal_text', '#000000'); 
             } else {
-                // --- LIGHT THEME STYLING ---
                 document.querySelector(".bg_img").src = "feed-thumb.png"; 
+                document.querySelector(".battery").style.background = "#6c90b0";
+                document.querySelector(".status_time").style.background = "#517da2";
                 document.documentElement.style.setProperty('--bg_color', 'white');
                 document.documentElement.style.setProperty('--chat_name', '#000000');
                 document.documentElement.style.setProperty('--fg_color', '#59bf4a');
-                document.documentElement.style.setProperty('--chats_bg', '#59bf4a');
-                document.documentElement.style.setProperty('--personal_text', '#ffffff');
+                
+                // --- TABS BUBBLE COLOR OLD (WHITE) ---
+                document.documentElement.style.setProperty('--chats_bg', '#d5e8f7');
+                document.documentElement.style.setProperty('--personal_bg', '#ffffff');
+                document.documentElement.style.setProperty('--personal_text', '#517da2');
             }
 
             const tops = [152, 223, 296, 368, 440, 512, 585, 656, 729];
@@ -121,19 +124,27 @@
                 document.querySelector(".ul_chat_time").innerHTML += `<li class="chat_time" style="top:${tops[i]+1}px;">${fullTime}</li>`;
 
                 let rDP = Math.floor(Math.random() * 30) + 1;
-                let dpHtml = (Math.random() > 0.4) ? `<img src="dp${rDP}.png">` : `<span class="chat_named_dp" style="background:hsl(${i*40},60%,50%)">${shuffled[i][0]}</span>`;
-                document.querySelector(".ul_chat_dp").innerHTML += `<li class="chat_dp" style="top:${dpTops[i]}px; left:7px;">${dpHtml}</li>`;
+                document.querySelector(".ul_chat_dp").innerHTML += `<li class="chat_dp" style="top:${dpTops[i]}px; left:7px;"><img src="dp${rDP}.png"></li>`;
                 
-                // Online Dot: Pink Color with Black Border for Dark Theme
                 if(Math.random() > 0.3) {
+                    let dotClass = (theme == "b") ? "dark-dot" : "light-dot";
                     document.querySelector(".ul_online_bullet").innerHTML += `<li class="online_bullet ${dotClass}" style="top:${dpTops[i]+42}px; left:50px;"></li>`;
                 }
 
-                let rImg = Math.floor(Math.random() * 30) + 1;
-                let rMsg = msgsList[Math.floor(Math.random()*msgsList.length)];
-                let msgHtml = (Math.random() > 0.4) ? `<img src="${rImg}.png"> <span class="msg_span_img">Photo</span>` : `<span class="msg_span_text_alone">${rMsg}</span>`;
+                // --- MIXED MESSAGE LOGIC (PH/VM/TEXT) ---
+                let msgHtml = "";
+                if (i < 3) { 
+                    let rImg = Math.floor(Math.random() * 30) + 1;
+                    let color = (Math.random() > 0.5) ? "#61a4c8" : "#747f89";
+                    msgHtml = `<img src="${rImg}.png" style="width:18px;height:18px;border-radius:2px;vertical-align:middle;"> <span style="color:${color}; margin-left:5px;">Photo</span>`;
+                } else if (i < 5) {
+                    msgHtml = `<span style="color:#61a4c8;">Voice message</span>`;
+                } else {
+                    let rMsg = msgsList[Math.floor(Math.random()*msgsList.length)];
+                    msgHtml = `<span style="color:#747f89;">${rMsg}</span>`;
+                }
 
-                document.querySelector(".ul_msg_img").innerHTML += `<li class="msg_img" style="top:${tops[i]+24}px; left:76px;">${msgHtml}</li>`;
+                document.querySelector(".ul_msg_img").innerHTML += `<li class="msg_img" style="top:${tops[i]+24}px; left:76px; background:var(--bg_color); display:flex; align-items:center;">${msgHtml}</li>`;
                 document.querySelector(".ul_count_bullet").innerHTML += `<li class="count_bullet" style="top:${tops[i]+24}px; left:321px;">${Math.floor(Math.random()*5)+1}</li>`;
             }
         }
@@ -142,7 +153,7 @@
             this.innerText = "CAPTURING...";
             html2canvas(document.querySelector("#box"), { scale: 4 }).then(canvas => {
                 const a = document.createElement("a");
-                a.download = `Telegram_SS_${Date.now()}.png`;
+                a.download = `Telegram_Feedback_${Date.now()}.png`;
                 a.href = canvas.toDataURL("image/png");
                 a.click();
                 this.innerText = "DOWNLOAD FEEDBACK";
