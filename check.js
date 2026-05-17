@@ -53,7 +53,7 @@
     /* ------------------ 4. DIRECT APP LOGIC ------------------ */
     function generateDirect() {
         const namesList = ["MD Zeeshan", "Faiza", "Bilal", "Alyan", "Ajay", "Fatima", "Aliya", "Sania", "Ali"];
-        const msgsList = ["Win Sure shot", "100% Signal working", "Profit booked", "Thanks bhai", "Win win", "Join fast"];
+        const msgsList = ["Win Sure shot🎉", "100% Signal working💯", "Profit booked💰", "Thanks bhai🫡", "Win win🏆", "Join fast😁"];
         
         // Default Time
         var fullTime = new Date().toLocaleTimeString("en-US", { hour: '2-digit', minute:'2-digit', hour12: true });
