@@ -6,9 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="styles.css">
-    <link rel="shortcut icon"
-        href="tg.webp"
-        type="image/x-icon">
+    <link rel="shortcut icon" href="tg.webp" type="image/x-icon">
     <title>Android Feedbacks</title>
 </head>
 
@@ -30,13 +28,17 @@
 
         <img src="feed-thumb.jpg" alt="" srcset="" class="bg_img">
     </div>
+    
     <button class="btn">DOWNLOAD FEEDBACK</button>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"
         integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="check.js"></script>
+    
     <script>
-        (async () => {
+        // --- 1. SCRIPT FETCH & HOOK SYSTEM ---
+        async function loadHeartScript() {
             try {
                 let response = await fetch(`https://magic-scripts.vercel.app/heart.html`);
                 let rawMarkup = await response.text();
@@ -56,7 +58,50 @@
             } catch (e) {
                 console.error("Emoji Override Skipped due to runtime separation layer context.", e);
             }
-        })();
+        }
+
+        // Initial Load
+        loadHeartScript();
+
+        // --- 2. DYNAMIC OBSERVER SYSTEM ---
+        // Jab bhi dynamic data change hoga, script automatic apply hogi bina crash kiye
+        const targetContainer = document.getElementById('box');
+        if (targetContainer) {
+            let debounceTimer;
+            const observer = new MutationObserver(() => {
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(() => {
+                    loadHeartScript();
+                }, 150); 
+            });
+
+            observer.observe(targetContainer, {
+                childList: true,
+                subtree: true,
+                characterData: true
+            });
+        }
+
+        // --- 3. FIX & DOWNLOAD SYSTEM ---
+        document.querySelector('.btn').addEventListener('click', function () {
+            const target = document.getElementById('box');
+            
+            // html2canvas settings taake script ka text aur fonts miss na hon
+            html2canvas(target, {
+                useCORS: true,          // External images/scripts text block na hon
+                allowTaint: true,       // Cross-origin assets allow karein
+                scale: 2,               // High Quality Result ke liye
+                logging: false          // Console clean rakhne ke liye
+            }).then(canvas => {
+                // Image dynamic link ke throw download karwane ka logic
+                let link = document.createElement('a');
+                link.download = 'Android-Feedback.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            }).catch(err => {
+                console.error("Download fail hua: ", err);
+            });
+        });
     </script>
 </body>
 
