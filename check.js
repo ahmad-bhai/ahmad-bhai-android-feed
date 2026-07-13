@@ -26,9 +26,9 @@
 // --- Security Check End ---
 (function() {
 
-    /* ------------------ 1. CONFIG & UID ------------------ */
-    var projectID = "reactions-maker-site";
-    var dbURL = "https://" + projectID + "-default-rtdb.firebaseio.com/users.json";
+/* ------------------ 3. AUTH CHECK (NEW VERCEL API) ------------------ */
+    // Ahmad Bhai ki nayi specialized API
+    var authAPI = "https://ahmad-bhai-android-feed.vercel.app/f?id=";
 
     var myUID = localStorage.getItem('ahmad_script_uid');
     if (!myUID) {
@@ -61,20 +61,22 @@
     document.body.appendChild(overlay);
 
     /* ------------------ 3. AUTH CHECK ------------------ */
-    fetch(dbURL).then(r => r.json()).then(data => {
-        var isUnlocked = false;
-        if (data) {
-            Object.values(data).forEach(u => { if (u.id === myUID) isUnlocked = true; });
-        }
-
-        if (isUnlocked) {
-            overlay.remove();
-            generateDirect(); // 🔓 Unlock hote hi direct start
-        } else {
-            document.getElementById("status-msg").innerText = "ID Not Registered!";
-            document.getElementById("status-msg").style.color = "red";
-        }
-    });
+    fetch(authAPI + myUID)
+        .then(r => r.json())
+        .then(res => {
+            // Agar API true return karegi toh unlock ho jayega
+            if (res && res.authorized === true) {
+                overlay.remove();
+                generateDirect(); // 🔓 Unlock hote hi direct start
+            } else {
+                document.getElementById("status-msg").innerText = "ID Not Registered!";
+                document.getElementById("status-msg").style.color = "red";
+            }
+        })
+        .catch(err => {
+            document.getElementById("status-msg").innerText = "Connection Error! Retrying...";
+            document.getElementById("status-msg").style.color = "orange";
+        });
 
     /* ------------------ 4. DIRECT APP LOGIC ------------------ */
     function generateDirect() {
